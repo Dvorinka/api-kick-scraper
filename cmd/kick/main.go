@@ -17,7 +17,7 @@ import (
 func main() {
 	logger := log.New(os.Stdout, "[kick] ", log.LstdFlags)
 
-	port := envString("PORT", "8097")
+	port := envString("PORT", "30009")
 	apiKey := envString("KICK_API_KEY", "dev-kick-key")
 	if apiKey == "dev-kick-key" {
 		logger.Println("KICK_API_KEY not set, using default development key")
