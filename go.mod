@@ -1,4 +1,4 @@
-module kick-scraper
+module apiservices/kick-scraper
 
 go 1.25.7
 
