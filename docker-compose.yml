@@ -4,15 +4,15 @@ services:
   kick-scraper-api:
     build: .
     ports:
-      - "8080:8080"
+      - "30015:30015"
     environment:
-      - PORT=8080
+      - PORT=30015
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - KICK_SCRAPER_API_KEY=${KICK_SCRAPER_API_KEY:-dev-kick-scraper-key}
       - RAPIDAPI_PROXY_SECRET=${RAPIDAPI_PROXY_SECRET:-}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/healthz"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:30015/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
