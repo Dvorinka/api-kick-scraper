@@ -1,0 +1,407 @@
+openapi: 3.0.3
+info:
+  title: Kick Scraper API
+  description: API for scraping Kick.com channels and media content
+  version: 1.0.0
+  contact:
+    name: API Services
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8097
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+
+paths:
+  /healthz:
+    get:
+      summary: Health check endpoint
+      description: Returns the health status of the service
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /v1/kick/channel:
+    post:
+      summary: Get channel information
+      description: Scrape channel information from Kick.com
+      tags:
+        - Channel Data
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelInput'
+      responses:
+        '200':
+          description: Successful channel information response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChannelResult'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/kick/channel/media:
+    post:
+      summary: Get channel media
+      description: Scrape media content from a Kick.com channel
+      tags:
+        - Channel Data
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelMediaInput'
+      responses:
+        '200':
+          description: Successful channel media response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChannelMediaResult'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/kick/signals/ingest:
+    post:
+      summary: Ingest signal events
+      description: Process and analyze signal events from Kick.com
+      tags:
+        - Signal Processing
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignalIngestInput'
+      responses:
+        '200':
+          description: Successful signal ingestion response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SignalIngestResult'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    ChannelInput:
+      type: object
+      properties:
+        channel_url:
+          type: string
+          description: Kick.com channel URL
+          example: "https://kick.com/channelname"
+        channel:
+          type: string
+          description: Channel name
+          example: "channelname"
+        include_media:
+          type: boolean
+          description: Whether to include media in channel response
+          default: false
+          example: true
+        limit:
+          type: integer
+          description: Maximum number of items to return
+          minimum: 1
+          maximum: 100
+          example: 20
+
+    ChannelMediaInput:
+      type: object
+      properties:
+        channel_url:
+          type: string
+          description: Kick.com channel URL
+          example: "https://kick.com/channelname"
+        channel:
+          type: string
+          description: Channel name
+          example: "channelname"
+        type:
+          type: string
+          description: Type of media to filter
+          enum: [video, image, clip, all]
+          default: all
+          example: "video"
+        limit:
+          type: integer
+          description: Maximum number of media items to return
+          minimum: 1
+          maximum: 100
+          example: 50
+
+    MediaItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Media item ID
+          example: "media_123456"
+        type:
+          type: string
+          description: Media type
+          enum: [video, image, clip]
+          example: "video"
+        title:
+          type: string
+          description: Media title
+          example: "Stream Title"
+        url:
+          type: string
+          description: Media URL
+          example: "https://kick.com/video/123456"
+        view_count:
+          type: integer
+          description: Number of views
+          example: 1500
+        duration:
+          type: string
+          description: Media duration
+          example: "1:23:45"
+        published_at:
+          type: string
+          description: Publication timestamp
+          example: "2023-01-01T12:00:00Z"
+
+    ChannelResult:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: Channel name
+          example: "channelname"
+        display_name:
+          type: string
+          description: Channel display name
+          example: "Channel Display Name"
+        title:
+          type: string
+          description: Channel title
+          example: "Amazing Channel"
+        category:
+          type: string
+          description: Channel category
+          example: "gaming"
+        is_live:
+          type: boolean
+          description: Whether channel is currently live
+          example: true
+        viewer_count:
+          type: integer
+          description: Current viewer count
+          example: 250
+        follower_count:
+          type: integer
+          description: Number of followers
+          example: 10000
+        thumbnail_url:
+          type: string
+          description: Channel thumbnail URL
+          example: "https://kick.com/thumbnails/channel.jpg"
+        started_at:
+          type: string
+          description: Stream start time
+          example: "2023-01-01T10:00:00Z"
+        media:
+          type: array
+          description: Channel media items
+          items:
+            $ref: '#/components/schemas/MediaItem'
+
+    ChannelMediaResult:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: Channel name
+          example: "channelname"
+        type:
+          type: string
+          description: Media type filter
+          example: "video"
+        count:
+          type: integer
+          description: Number of items returned
+          example: 25
+        items:
+          type: array
+          description: Media items
+          items:
+            $ref: '#/components/schemas/MediaItem'
+
+    SignalEvent:
+      type: object
+      properties:
+        user:
+          type: string
+          description: Username who sent the signal
+          example: "viewer123"
+        message:
+          type: string
+          description: Signal message content
+          example: "Great stream!"
+        timestamp:
+          type: string
+          description: Signal timestamp
+          example: "2023-01-01T12:30:00Z"
+        viewer_count:
+          type: integer
+          description: Viewer count at signal time
+          example: 275
+        is_subscriber:
+          type: boolean
+          description: Whether user is a subscriber
+          example: false
+
+    SignalIngestInput:
+      type: object
+      required:
+        - channel
+        - events
+      properties:
+        channel:
+          type: string
+          description: Channel name
+          example: "channelname"
+        events:
+          type: array
+          description: Array of signal events
+          minItems: 1
+          maxItems: 1000
+          items:
+            $ref: '#/components/schemas/SignalEvent'
+
+    SignalIngestResult:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: Channel name
+          example: "channelname"
+        event_count:
+          type: integer
+          description: Number of events processed
+          example: 150
+        unique_users:
+          type: integer
+          description: Number of unique users
+          example: 45
+        message_rate_per_min:
+          type: number
+          format: float
+          description: Messages per minute rate
+          example: 2.5
+        subscriber_ratio:
+          type: number
+          format: float
+          description: Ratio of subscriber signals
+          example: 0.15
+        average_viewer_count:
+          type: number
+          format: float
+          description: Average viewer count
+          example: 275.5
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "invalid json body"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: API key for authentication (format: "Bearer YOUR_API_KEY")
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Channel Data
+    description: Channel information and media scraping
+  - name: Signal Processing
+    description: Signal event processing and analysis
